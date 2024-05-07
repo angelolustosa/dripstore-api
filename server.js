@@ -1,8 +1,11 @@
 import express from 'express'
+import { connection } from './db/db.js'
 const app = express()
 
 const HOST = 'localhost'
 const PORT = 5000
+
+connection()
 
 app.get('/', (req, res) => {
   res.send({
