@@ -1,6 +1,4 @@
-import { Sequelize } from "sequelize";
-
-const sequelize = new Sequelize('postgresql://dripstore_db_owner:gdtnExSJ7f1q@ep-fancy-snowflake-a5clxf8o.us-east-2.aws.neon.tech/dripstore_bd?sslmode=require') // Example for postgres
+import { sequelize } from "./database.js";
 
 export const connection = async () => {
     try {
