@@ -1,5 +1,8 @@
 import express from 'express'
 import { connection } from './db/db.js'
+import { produtoRoute } from './routes/produtos.routes.js'
+import winston from 'winston'
+
 const app = express()
 
 const HOST = 'localhost'
@@ -13,6 +16,8 @@ app.get('/', (req, res) => {
     status: 200
   })
 })
+
+produtoRoute(app)
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port http://${HOST}:${PORT}`)
