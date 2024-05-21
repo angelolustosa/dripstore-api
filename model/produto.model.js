@@ -4,7 +4,15 @@ import { sequelize } from "../db/database.js";
 export const Produto = sequelize.define('produtos', {
     nome: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: {
+            notNull: {
+                msg: 'O nome do produto é obrigatório.'
+            },
+            notEmpty: {
+                msg: 'O nome do produto não pode estar vazio.'
+            }
+        }
     },
     descricao: {
         type: DataTypes.STRING,

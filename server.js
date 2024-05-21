@@ -10,6 +10,12 @@ const PORT = 5000
 
 connection()
 
+// Converte o valor recebido via body na requisição
+app.use(express.json());
+
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(express.urlencoded({ extended: true }));
+
 app.get('/', (req, res) => {
   res.send({
     message:'Servidor no Ar!' ,
