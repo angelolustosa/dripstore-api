@@ -2,8 +2,16 @@ import express from 'express'
 import { connection } from './db/db.js'
 import { produtoRoute } from './routes/produtos.routes.js'
 import winston from 'winston'
+import cors from 'cors'
 
 const app = express()
+
+// Configurando o CORS para permitir apenas solicitações do localhost:5173
+const corsOptions = {
+  origin: 'http://localhost:5173',
+};
+
+app.use(cors(corsOptions));
 
 const HOST = 'localhost'
 const PORT = 5000
