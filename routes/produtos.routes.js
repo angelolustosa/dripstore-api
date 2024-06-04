@@ -1,12 +1,11 @@
 import express from 'express'
 import { produtoService } from '../services/produtos.service.js'
 
-export const produtoRoute = (app) => {
-    var route = express.Router()
+var routerProduto = express.Router()
 
-    route.get('/', produtoService.getAll);
-    route.get('/:id', produtoService.getById);
-    route.post('/', produtoService.create);
+routerProduto
+    .get('/', produtoService.getAll)
+    .get('/:id', produtoService.getById)
+    .post('/', produtoService.create)
 
-    app.use('/api/produto', route)
-}
+export default routerProduto;

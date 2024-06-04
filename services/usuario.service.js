@@ -1,10 +1,44 @@
-//import { Produto } from "../models/produto.model.js";
+/* import { Produto } from "../models/produto.model.js";
+import { Usuario } from "../models/usuario.model.js"; */
+
 import db from "../models/index.js";
 const Produto = db.produto;
+const Usuario = db.usuario;
 
-export const produtoService = {
+import pkg from 'bcryptjs';
+const { hash } = pkg;
+
+export const usuarioService = {
+    create: async (req, res) => {
+        const { nome, email, senha } = req.body;
+
+        const usuario = await Usuario.findOne({
+            where: {
+                email: email
+            }
+        })
+
+        if (usuario) {
+            return res.status(404).json(`Usuário já cadastrado`);
+        }
+
+        try {
+            const passHash = await hash(senha, 8)
+            const user = { nome: nome, email: email, senha: passHash }
+
+            console.log('user:', user)
+            const usuarioBD = await Usuario.create(user);
+
+            return res.status(200).json(usuarioBD);
+        } catch (error) {
+            res.status(400).send({
+                message: `Erro ao cadastrar o usuário`,
+                error: error
+            })
+        }
+    },
     getAll: async (req, res) => {
-        const produtos = await Produto.findAll({
+        const produtos = await Usuario.findAll({
             order: [['id', 'DESC']]
         });
 
@@ -22,19 +56,7 @@ export const produtoService = {
 
         return res.status(200).json(produto);
     },
-    create: async (req, res) => {
-        const produto = req.body;
-        const produtoBD = await Produto.create(produto);
 
-        if (!produtoBD) {
-            return res.status(404).json({
-                data: produto,
-                message: `Erro ao salvar o produto não encontrado!`
-            })
-        }
-
-        return res.status(200).json(produtoBD);
-    },
     update: async (req, res) => {
         try {
             const id = req.params.id;
