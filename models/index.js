@@ -1,8 +1,8 @@
 import { Sequelize } from "sequelize";
 import { sequelize } from "../db/database.js";
-import { usuarioModel } from "./usuario.model.js";
-import { perfilModel } from "./perfil.model.js";
-import { produtoModel } from "./produto.model.js";
+import { Usuario } from "./usuario.model.js";
+import { Perfil } from "./perfil.model.js";
+import { Produto } from "./produto.model.js";
 
 sequelize.authenticate().then(() => {
   console.log('[INFO] Connection has been established successfully.');
@@ -12,12 +12,8 @@ sequelize.authenticate().then(() => {
 
 const db = {};
 
-db.Sequelize = Sequelize;
-db.sequelize = sequelize;
-
-const Produto = produtoModel(sequelize);
-const Usuario = usuarioModel(sequelize);
-const Perfil = perfilModel(sequelize);
+db.sequelize = sequelize
+db.Sequelize = Sequelize
 
 db.produto = Produto
 db.usuario = Usuario

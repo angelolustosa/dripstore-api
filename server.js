@@ -20,27 +20,37 @@ app.use(express.urlencoded({ extended: true }));
 db.sequelize.sync({ force: false })
   .then(() => {
     console.log("Drop and re-sync db.");
-    initialPerfil();
+    iniciarPerfis();
   })
   .catch((err) => {
     console.log("Failed to sync db: " + err.message);
   });
 
-export function initialPerfil() {
-  db.Perfil.create({
-    id: 1,
-    name: "usuario"
-  });
+const iniciarPerfis = async () => {
+  const perfis = await db.perfil.findAll();
+  //console.log('perfis:', perfis)
 
-  Role.create({
-    id: 2,
-    name: "moderador"
-  });
+  // TODO testar usando o bulkCreate
+  if (perfis.length === 0) {
+    db.perfil.create({
+      id: 1,
+      nome: "usuario",
+      codigo: 'USER'
+    });
 
-  Role.create({
-    id: 3,
-    name: "admin"
-  });
+    db.perfil.create({
+      id: 2,
+      nome: "moderador",
+      codigo: 'MOD'
+    });
+
+    db.perfil.create({
+      id: 3,
+      nome: "admin",
+      codigo: 'ADMIN'
+    });
+  }
+
 }
 
 
@@ -52,8 +62,10 @@ app.get('/', (req, res) => {
   })
 })
 
-//produtoRoute(app)
+
 routes(app)
+
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port http://${HOST}:${PORT}`)
 })
