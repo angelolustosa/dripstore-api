@@ -1,4 +1,6 @@
+import jwt from "jsonwebtoken";
 import db from "../models/index.js";
+import { secret } from "../config/auth.config.js";
 const Usuario = db.usuario;
 
 const verifyToken = (req, res, next) => {
@@ -6,12 +8,12 @@ const verifyToken = (req, res, next) => {
 
     if (!token) {
         return res.status(403).send({
-            message: "No token provided!"
+            message: "Nenhum token Informado!"
         });
     }
 
     jwt.verify(token,
-        config.secret,
+        secret,
         (err, decoded) => {
             if (err) {
                 return res.status(401).send({
@@ -25,7 +27,7 @@ const verifyToken = (req, res, next) => {
 
 const isAdmin = (req, res, next) => {
     Usuario.findByPk(req.userId).then(usuario => {
-        usuario.getRoles().then(perfis => {
+        usuario.getPerfils().then(perfis => {
             for (let i = 0; i < perfis.length; i++) {
                 if (perfis[i].nome === "admin") {
                     next();
@@ -34,7 +36,7 @@ const isAdmin = (req, res, next) => {
             }
 
             res.status(403).send({
-                message: "Require Admin Role!"
+                message: "Requer acesso de Administrador!"
             });
             return;
         });
@@ -43,7 +45,7 @@ const isAdmin = (req, res, next) => {
 
 const isModerator = (req, res, next) => {
     Usuario.findByPk(req.userId).then(usuario => {
-        usuario.getRoles().then(perfis => {
+        usuario.getPerfils().then(perfis => {
             for (let i = 0; i < perfis.length; i++) {
                 if (perfis[i].nome === "moderator") {
                     next();
@@ -52,7 +54,7 @@ const isModerator = (req, res, next) => {
             }
 
             res.status(403).send({
-                message: "Require Moderator Role!"
+                message: "Requer acesso de Moderador!"
             });
         });
     });
@@ -60,7 +62,7 @@ const isModerator = (req, res, next) => {
 
 const isModeratorOrAdmin = (req, res, next) => {
     Usuario.findByPk(req.userId).then(usuario => {
-        usuario.getRoles().then(perfis => {
+        usuario.getPerfils().then(perfis => {
             for (let i = 0; i < perfis.length; i++) {
                 if (perfis[i].nome === "moderator") {
                     next();

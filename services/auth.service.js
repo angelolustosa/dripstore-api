@@ -5,10 +5,10 @@ const Perfil = db.perfil;
 
 import pkg from 'bcryptjs';
 import { secret } from "../config/auth.config.js";
+import jwt from "jsonwebtoken";
 const { hashSync, compareSync } = pkg;
 
 export const authService = {
-
 
     signup: (req, res) => {
         // Save User to Database
@@ -76,7 +76,7 @@ export const authService = {
                     res.status(500).send({ message: err.message });
                 });
  */
-       signin: async (req, res) => {
+    signin: async (req, res) => {
         const usuario = await Usuario.findOne({
             where: {
                 nome: req.body.nome
@@ -109,7 +109,7 @@ export const authService = {
                 });
 
             var authorities = [];
-            usuario.getPerfis().then(perfis => {
+            usuario.getPerfils().then(perfis => {
                 for (let i = 0; i < perfis.length; i++) {
                     authorities.push("PERFIL_" + perfis[i].nome.toUpperCase());
                 }
