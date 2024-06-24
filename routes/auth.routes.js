@@ -11,5 +11,7 @@ routerAuth
         verifySignUp.checkRolesExisted
     ], authService.signup)
     .post('/signin', authService.signin)
+    .post("/logout", authService.logout);
+
 
 export default routerAuth;

@@ -125,5 +125,26 @@ export const authService = {
             console.log(`error`, error);
             res.status(500).send({ message: error.message });
         }
-    }
+    },
+    logout: async (req, res) => {
+        const token = req.headers["x-access-token"];
+        if (!token) {
+            return res.status(403).send({ message: "No token provided!" });
+        }
+
+        const decoded = jwt.decode(token);
+        const expiration = new Date(decoded.exp * 1000);
+
+        try {
+            await RevokedToken.create({
+                token: token,
+                expiration: expiration
+            });
+
+            res.status(200).send({ message: "Logged out successfully!" });
+        } catch (err) {
+            res.status(500).send({ message: err.message });
+        }
+    },
+
 }
