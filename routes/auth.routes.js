@@ -6,12 +6,9 @@ import { authService } from '../services/auth.service.js';
 var routerAuth = express.Router()
 
 routerAuth
-    .post('/signup', [
-        verifySignUp.checkDuplicateUsernameOrEmail,
-        verifySignUp.checkRolesExisted
-    ], authService.signup)
-    .post('/signin', authService.signin)
-    .post("/logout", authService.logout);
+    .post('/signup', authService.signup)
+    /* .post('/signin', authService.signin)
+    .post("/logout", authService.logout) */;
 
 
 export default routerAuth;

@@ -10,141 +10,45 @@ const { hashSync, compareSync } = pkg;
 
 export const authService = {
 
-    signup: (req, res) => {
-        // Save User to Database
-        Usuario.create({
-            nome: req.body.nome,
-            usuario: req.body.usuario,
-            email: req.body.email,
-            senha: hashSync(req.body.senha, 8)
-        })
-            .then(usuario => {
-                if (req.body.perfis) {
-                    Perfil.findAll({
-                        where: {
-                            nome: {
-                                [Op.or]: req.body.perfis
-                            }
+    signup: async (req, res) => {
+        try {
+            const { nome, email, senha, perfis } = req.body
+
+            const usuario = await db.usuario.create({
+                nome,
+                email,
+                senha: hashSync(senha, 8)
+            })
+
+            if (perfis.length > 0) {
+                // Verifica se todos os perfis passados existem no banco
+                const perfisDB = await db.perfil.findAll({
+                    where: {
+                        nome: {
+                            [Op.in]: perfis
                         }
-                    }).then(perfis => {
-                        usuario.addPerfil(perfis).then(() => {
-                            res.send({ message: "User was registered successfully!" });
-                        });
-                    });
-                } else {
-                    // user role = 1
-                    usuario.setPerfil([1]).then(() => {
-                        res.send({ message: "User was registered successfully!" });
-                    });
-                }
-            })
-            .catch(err => {
-                res.status(500).send({ message: err.message });
-            });
-    },
-
-
-    /*   async (req, res) => {
-            // Save User to Database
-            Usuario.create({
-                nome: req.body.nome,
-                usuario: req.body.usuario,
-                email: req.body.email,
-                senha: hashSync(req.body.senha, 8)
-            })
-                .then(usuario => {
-                    if (req.body.perfis) {
-                        Perfil.findAll({
-                            where: {
-                                nome: {
-                                    [Op.or]: req.body.perfis
-                                }
-                            }
-                        }).then(perfis => {
-                            usuario.setPerfis(perfis).then(() => {
-                                res.send({ message: "User was registered successfully!" });
-                            });
-                        });
-                    } else {
-                        // user role = 1
-                        usuario.setRoles([1]).then(() => {
-                            res.send({ message: "User was registered successfully!" });
-                        });
                     }
                 })
-                .catch(err => {
-                    res.status(500).send({ message: err.message });
-                });
- */
-    signin: async (req, res) => {
-        const usuario = await Usuario.findOne({
-            where: {
-                nome: req.body.nome
-            }
-        })
 
-        try {
-            if (!usuario) {
-                return res.status(404).send({ message: "User Not found." });
-            }
-
-            var passwordIsValid = compareSync(
-                req.body.senha,
-                usuario.senha
-            );
-
-            if (!passwordIsValid) {
-                return res.status(401).send({
-                    accessToken: null,
-                    message: "Invalid Password!"
-                });
-            }
-
-            const token = jwt.sign({ id: usuario.id },
-                secret,
-                {
-                    algorithm: 'HS256',
-                    allowInsecureKeySizes: true,
-                    expiresIn: 86400, // 24 hours
-                });
-
-            var authorities = [];
-            usuario.getPerfils().then(perfis => {
-                for (let i = 0; i < perfis.length; i++) {
-                    authorities.push("PERFIL_" + perfis[i].nome.toUpperCase());
+                if (perfisDB) {
+                    const usuarioPerfil = await usuario.addPerfils(perfisDB)
+                    res.status(201).json({
+                        msg: `Usuário ${usuario.nome} cadastrado com Sucesso!`,
+                        data: usuarioPerfil
+                    })
                 }
-                res.status(200).send({
-                    id: usuario.id,
-                    nome: usuario.nome,
-                    email: usuario.email,
-                    perfis: authorities,
-                    accessToken: token
-                });
-            });
+            }
         } catch (error) {
             console.log(`error`, error);
-            res.status(500).send({ message: error.message });
+            res.status(500).json({ msg: "Erro ao cadastrar usuário", error: error });
         }
+
+    },
+    signin: async (req, res) => {
+
     },
     logout: async (req, res) => {
-        const token = req.headers["x-access-token"];
-        if (!token) {
-            return res.status(403).send({ message: "No token provided!" });
-        }
 
-        const decoded = jwt.decode(token);
-        const expiration = new Date(decoded.exp * 1000);
-
-        try {
-            await RevokedToken.create({
-                token: token,
-                expiration: expiration
-            });
-
-            res.status(200).send({ message: "Logged out successfully!" });
-        } catch (err) {
-            res.status(500).send({ message: err.message });
-        }
     },
 
 }
